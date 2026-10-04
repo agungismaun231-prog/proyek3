@@ -1,0 +1,89 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+*.temp
+*.bak
+.history/
+.ionide/
+
+# Logs and local crash dumps
+*.log
+hs_err_pid*.log
+replay_pid*.log
+
+# IntelliJ / Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code local settings. Keep shared recommendations if they are added later.
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Dart / Flutter / Pub
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+
+# Generated Flutter platform artifacts
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Flutter/.symlinks/
+ios/Pods/
+macos/Flutter/ephemeral/
+macos/Pods/
+
+# Android / Gradle generated files
+.gradle/
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/**/local.properties
+android/**/captures/
+
+# Signing keys and local secrets
+*.jks
+*.keystore
+*.p12
+*.pem
+*.mobileprovision
+android/key.properties
+android/app/key.properties
+.env
+.env.*
+!.env.example
+
+# Firebase / Google service files for local builds
+firebase.json
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
+
+# Test and build reports
+coverage/
+test-results/
+
+# Symbolication / obfuscation output
+app.*.symbols
+app.*.map.json
+
+# Swift package / migration leftovers
+.build/
+.buildlog/
+.swiftpm/
+migrate_working_dir/
