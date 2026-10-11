@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Notification;
 
 /**
  * Technician Model
@@ -91,8 +92,20 @@ class Technician extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function ratings()
-    {
-        return $this->hasMany(Rating::class);
-    }
+    /**
+ * Relasi: Technician hasMany Ratings
+ * Satu teknisi bisa menerima banyak rating dari customer.
+ */
+public function ratings()
+{
+    return $this->hasMany(Rating::class);
+}
+
+/**
+ * Alias untuk kompatibilitas dengan kode lama.
+ */
+public function rating()
+{
+    return $this->ratings();
+}
 }

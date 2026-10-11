@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use App\Models\Notification;
 
 /**
  * User Model
@@ -33,7 +35,7 @@ use Illuminate\Notifications\Notifiable;
  */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * Atribut yang dapat di-assign secara massal (mass assignable)
@@ -71,7 +73,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'oauth_data' => 'json', // Casting ke JSON array
+            'oauth_data' => 'json',
         ];
     }
 
@@ -85,6 +87,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(Technician::class);
     }
+
+    public function notifications()
+    {
+    return $this->hasMany(Notification::class);
+}
 
     /**
      * Temukan atau buat user dari OAuth provider
@@ -102,19 +109,20 @@ class User extends Authenticatable
     {
         // Step 1: Cek by provider_id untuk update data OAuth yang existing
         $user = static::where('provider_id', $oauthUser->getId())->first();
-        
+
         if ($user) {
             // User sudah login via OAuth sebelumnya, update data
             $user->update([
                 'provider' => $provider,
                 'oauth_data' => json_encode($oauthUser),
             ]);
+
             return $user;
         }
 
         // Step 2: Cek by email untuk link OAuth ke akun existing
         $user = static::where('email', $oauthUser->getEmail())->first();
-        
+
         if ($user) {
             // User sudah ada, link dengan OAuth provider ini
             // Ini memungkinkan user login via email+password atau OAuth
@@ -123,6 +131,7 @@ class User extends Authenticatable
                 'provider_id' => $oauthUser->getId(),
                 'oauth_data' => json_encode($oauthUser),
             ]);
+
             return $user;
         }
 
@@ -133,8 +142,8 @@ class User extends Authenticatable
             'provider' => $provider,
             'provider_id' => $oauthUser->getId(),
             'oauth_data' => json_encode($oauthUser),
-            'role' => 'customer', // Default role untuk OAuth user adalah customer
-            'password' => bcrypt('oauth_' . uniqid()), // Password random untuk security
+            'role' => 'customer',
+            'password' => bcrypt('oauth_' . uniqid()),
         ]);
     }
 }

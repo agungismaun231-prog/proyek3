@@ -10,6 +10,7 @@ import '../models/payment.dart';
 import '../models/service_item.dart';
 import '../models/technician.dart';
 import '../models/user.dart';
+import '../models/app_notification.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -68,10 +69,15 @@ class ApiService {
   }
 
   static Map<String, dynamic> _decode(http.Response response) {
-    if (response.body.isEmpty) return <String, dynamic>{};
+    if (response.body.isEmpty) {
+      return <String, dynamic>{};
+    }
 
     final decoded = jsonDecode(response.body);
-    if (decoded is Map<String, dynamic>) return decoded;
+
+    if (decoded is Map<String, dynamic>) {
+      return decoded;
+    }
 
     throw ApiException(
       'Format response server tidak dikenali.',
@@ -79,24 +85,34 @@ class ApiService {
     );
   }
 
-  static void _throwIfNeeded(
-    http.Response response,
-    Map<String, dynamic> data,
-  ) {
-    if (response.statusCode >= 200 && response.statusCode < 300) return;
+  static void _throwIfNeeded(http.Response response,
+      Map<String, dynamic> data,) {
+    if (response.statusCode >= 200 &&
+        response.statusCode < 300) {
+      return;
+    }
 
-    final message = data['message']?.toString();
+    final message =
+    data['message']?.toString();
+
     final errors = data['errors'];
 
-    if (errors is Map && errors.isNotEmpty) {
+    if (errors is Map &&
+        errors.isNotEmpty) {
       final first = errors.values.first;
-      if (first is List && first.isNotEmpty) {
-        throw ApiException(first.first.toString(), response.statusCode);
+
+      if (first is List &&
+          first.isNotEmpty) {
+        throw ApiException(
+          first.first.toString(),
+          response.statusCode,
+        );
       }
     }
 
     throw ApiException(
-      message ?? 'Request gagal (${response.statusCode}).',
+      message ??
+          'Request gagal (${response.statusCode}).',
       response.statusCode,
     );
   }
@@ -181,11 +197,9 @@ class ApiService {
     return result;
   }
 
-  static Future<AuthResult> googleLoginMobile(
-    String email,
-    String name,
-    String idToken,
-  ) async {
+  static Future<AuthResult> googleLoginMobile(String email,
+      String name,
+      String idToken,) async {
     final response = await http.post(
       _uri('/google-login-mobile'),
       headers: await _headers(),
@@ -242,10 +256,8 @@ class ApiService {
     return user;
   }
 
-  static Future<void> updatePassword(
-    String currentPassword,
-    String newPassword,
-  ) async {
+  static Future<void> updatePassword(String currentPassword,
+      String newPassword,) async {
     final response = await http.post(
       _uri('/change-password'),
       headers: await _headers(auth: true),
@@ -328,11 +340,10 @@ class ApiService {
     return Booking.fromJson(data['booking'] as Map<String, dynamic>);
   }
 
-  static Future<Booking> updateBookingStatus(
-    int bookingId,
-    String status, {
-    String? notes,
-  }) async {
+  static Future<Booking> updateBookingStatus(int bookingId,
+      String status, {
+        String? notes,
+      }) async {
     final response = await http.put(
       _uri('/bookings/$bookingId/status'),
       headers: await _headers(auth: true),
@@ -344,8 +355,7 @@ class ApiService {
     return Booking.fromJson(data['booking'] as Map<String, dynamic>);
   }
 
-  static Future<Booking> cancelBooking(
-    int bookingId, {
+  static Future<Booking> cancelBooking(int bookingId, {
     required String reason,
   }) async {
     final response = await http.post(
@@ -401,10 +411,14 @@ class ApiService {
     request.headers.addAll(headers);
     request.fields['amount'] = amount.toString();
     request.fields['payment_method'] = paymentMethod;
-    if (referenceNumber != null && referenceNumber.trim().isNotEmpty) {
+    if (referenceNumber != null && referenceNumber
+        .trim()
+        .isNotEmpty) {
       request.fields['reference_number'] = referenceNumber.trim();
     }
-    if (notes != null && notes.trim().isNotEmpty) {
+    if (notes != null && notes
+        .trim()
+        .isNotEmpty) {
       request.fields['notes'] = notes.trim();
     }
     if (paymentProofPath != null && paymentProofPath.isNotEmpty) {
@@ -426,7 +440,9 @@ class ApiService {
       _uri('/payments/$paymentId/approve'),
       headers: await _headers(auth: true),
       body: jsonEncode({
-        if (notes != null && notes.trim().isNotEmpty) 'notes': notes.trim(),
+        if (notes != null && notes
+            .trim()
+            .isNotEmpty) 'notes': notes.trim(),
       }),
     );
 
@@ -435,8 +451,7 @@ class ApiService {
     return Payment.fromJson(data['payment'] as Map<String, dynamic>);
   }
 
-  static Future<Payment> rejectPayment(
-    int paymentId, {
+  static Future<Payment> rejectPayment(int paymentId, {
     required String reason,
   }) async {
     final response = await http.post(
@@ -464,5 +479,53 @@ class ApiService {
     final data = _decode(response);
     _throwIfNeeded(response, data);
     return Booking.fromJson(data['booking'] as Map<String, dynamic>);
+  }
+
+
+  static Future<List<AppNotification>>
+  getNotifications() async {
+    final response = await http.get(
+      _uri('/notifications'),
+      headers: await _headers(auth: true),
+    );
+
+    final data = _decode(response);
+
+    _throwIfNeeded(response, data);
+
+    return ((data['notifications'] as List?) ?? [])
+        .map(
+          (e) =>
+          AppNotification.fromJson(
+            e as Map<String, dynamic>,
+          ),
+    )
+        .toList();
+  }
+
+  static Future<int>
+  getUnreadNotificationCount() async {
+    final response = await http.get(
+      _uri('/notifications/unread-count'),
+      headers: await _headers(auth: true),
+    );
+
+    final data = _decode(response);
+
+    _throwIfNeeded(response, data);
+
+    return data['count'] ?? 0;
+  }
+
+  static Future<void>
+  markNotificationAsRead(int notificationId,) async {
+    final response = await http.put(
+      _uri('/notifications/$notificationId/read'),
+      headers: await _headers(auth: true),
+    );
+
+    final data = _decode(response);
+
+    _throwIfNeeded(response, data);
   }
 }

@@ -8,6 +8,8 @@ use App\Services\Payment\PaymentGatewayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Notification;
+use App\Models\User;
 
 /**
  * PaymentController - Payment Transaction Management dengan Admin Approval
@@ -373,6 +375,21 @@ class PaymentController extends Controller
             'paid_date' => now(),
         ]);
 
+        $customerUser = User::where(
+    'email',
+    $invoice->booking->customer->email
+)->first();
+
+if ($customerUser) {
+
+    Notification::create([
+        'user_id' => $customerUser->id,
+        'title' => 'Pembayaran Diterima',
+        'message' => 'Pembayaran Anda telah disetujui admin.',
+        'type' => 'payment',
+    ]);
+
+}
         return redirect()->route('payments.pending')->with('success', 'Pembayaran berhasil di-approve, invoice telah ditandai sebagai paid');
     }
 
@@ -417,6 +434,38 @@ class PaymentController extends Controller
             'approved_date' => now(),
             'notes' => $validated['reason'],
         ]);
+
+        $customerUser = User::where(
+    'email',
+    $payment->invoice->booking->customer->email
+)->first();
+
+if ($customerUser) {
+
+    Notification::create([
+        'user_id' => $customerUser->id,
+        'title' => 'Pembayaran Ditolak',
+        'message' => $validated['reason'],
+        'type' => 'payment',
+    ]);
+
+}
+
+        $customerUser = User::where(
+    'email',
+    $payment->invoice->booking->customer->email
+)->first();
+
+if ($customerUser) {
+
+    Notification::create([
+        'user_id' => $customerUser->id,
+        'title' => 'Pembayaran Ditolak',
+        'message' => $validated['reason'],
+        'type' => 'payment',
+    ]);
+
+}
 
         // Delete uploaded file jika ada
         if ($payment->payment_proof) {

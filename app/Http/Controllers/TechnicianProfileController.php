@@ -35,9 +35,9 @@ class TechnicianProfileController extends Controller
             'total_completed' => $technician->bookings()
                 ->where('status', 'completed')
                 ->count(),
-            'average_rating' => $technician->ratings()
+            'average_rating' => $technician->rating()
                 ->avg('rating') ?? 0,
-            'total_reviews' => $technician->ratings()
+            'total_reviews' => $technician->rating()
                 ->count(),
         ];
 

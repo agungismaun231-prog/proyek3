@@ -202,7 +202,7 @@
             </div>
 
             <!-- Ratings (if completed) -->
-            @if($booking->status === 'completed' && $booking->ratings->count() > 0)
+            @if($booking->status === 'completed' && $booking->rating->count() > 0)
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-light border-0">
                         <h6 class="mb-0"><i class="bi bi-star-fill text-warning"></i> Rating Pelanggan</h6>

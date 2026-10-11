@@ -7,6 +7,7 @@ import 'screens/customer_dashboard.dart';
 import 'screens/login_screen.dart';
 import 'screens/technician_dashboard.dart';
 import 'services/api_service.dart';
+import 'package:badges/badges.dart' as badges;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

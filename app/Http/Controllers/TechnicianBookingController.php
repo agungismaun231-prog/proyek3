@@ -53,7 +53,7 @@ class TechnicianBookingController extends Controller
             abort(403, 'Anda tidak memiliki akses ke pesanan ini');
         }
 
-        $booking->load('service', 'customer', 'invoice', 'ratings');
+        $booking->load('service', 'customer', 'invoice', 'rating');
 
         return view('technician.bookings.show', compact('booking', 'technician'));
     }
