@@ -74,7 +74,4 @@ Route::get(
 });
 
 
-Route::get(
-    '/notifications/unread-count',
-    [NotificationController::class, 'unreadCount']
-);
+

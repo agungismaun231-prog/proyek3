@@ -31,6 +31,7 @@
   class _CustomerDashboardState extends State<CustomerDashboard> {
     int _selectedIndex = 0;
     late User _user;
+
     List<Booking> _bookings = [];
     List<Invoice> _invoices = [];
     bool _isLoading = true;

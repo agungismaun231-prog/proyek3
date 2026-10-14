@@ -50,8 +50,9 @@ class TechnicianProfileController extends Controller
     public function edit()
     {
         $user = Auth::user();
-        $technician = Technician::where('user_id', $user->id)->first();
-
+        $technician = Technician::where('user_id', $user->id)
+    ->with('user')
+    ->first();
         if (!$technician) {
             abort(404, 'Data teknisi tidak ditemukan');
         }
@@ -73,12 +74,14 @@ class TechnicianProfileController extends Controller
 
         // Validate input
         $validated = $request->validate([
-            'phone' => 'required|string|max:20',
-            'specialization' => 'nullable|string|max:100',
-            'description' => 'nullable|string|max:500',
-            'years_experience' => 'nullable|integer|min:0',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+    'name' => 'required|string|max:255',
+    'phone' => 'required|string|max:20',
+    'specialization' => 'nullable|string|max:100',
+    'description' => 'nullable|string|max:500',
+    'years_experience' => 'nullable|integer|min:0',
+    'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+]);
+
 
         // Handle photo upload
         if ($request->hasFile('photo')) {

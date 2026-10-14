@@ -49,6 +49,10 @@ class Technician extends Model
         'address',          // Alamat rumah
         'specialization',   // Keahlian khusus (optional)
         'status',           // Status availability (available/busy/off)
+
+        'photo',
+        'description',
+        'years_experience',
     ];
 
     /**

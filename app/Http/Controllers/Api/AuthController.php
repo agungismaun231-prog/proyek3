@@ -177,15 +177,30 @@ class AuthController extends Controller
      */
     public function profile(Request $request): JsonResponse
     {
+        $user = $request->user();
+        
+        // Ambil data teknisi jika role-nya technician
+        $technicianData = null;
+        if ($user->role === 'technician') {
+            $technicianData = Technician::where('user_id', $user->id)->first();
+        }
+
         return response()->json([
-            'user' => new UserResource($request->user()),
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                // Bungkus ke dalam key 'technician' agar sinkron dengan updateProfile & model Flutter
+                'technician' => $technicianData,
+            ],
         ], 200);
     }
 
     /**
      * Update user profile information.
      */
-    public function updateProfile(Request $request): JsonResponse
+   public function updateProfile(Request $request): JsonResponse
     {
         $user = $request->user();
 
@@ -197,6 +212,8 @@ class AuthController extends Controller
             'city' => 'nullable|string|max:100',
             'postal_code' => 'nullable|string|max:20',
             'specialization' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'years_experience' => 'nullable|integer|min:0',
         ]);
 
         DB::transaction(function () use ($user, $validated) {
@@ -227,14 +244,26 @@ class AuthController extends Controller
                         'phone' => $validated['phone'],
                         'address' => $validated['address'],
                         'specialization' => $validated['specialization'] ?? null,
+                        'description' => $validated['description'] ?? null,
+                        'years_experience' => $validated['years_experience'] ?? 0,
                     ]
                 );
             }
         });
 
+        // Ambil data terbaru user dan data teknisinya secara langsung
+        $freshUser = $user->fresh();
+        $technicianData = $freshUser->role === 'technician' ? Technician::where('user_id', $freshUser->id)->first() : null;
+
         return response()->json([
             'message' => 'Profil berhasil diperbarui.',
-            'user' => new UserResource($user->fresh()),
+            'user' => [
+                'id' => $freshUser->id,
+                'name' => $freshUser->name,
+                'email' => $freshUser->email,
+                'role' => $freshUser->role,
+                'technician' => $technicianData, // Mengirim data teknisi langsung ke Flutter
+            ],
         ], 200);
     }
 

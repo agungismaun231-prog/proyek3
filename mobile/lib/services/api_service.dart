@@ -233,6 +233,9 @@ class ApiService {
     String? city,
     String? postalCode,
     String? specialization,
+
+    String? description,
+    int? yearsExperience,
   }) async {
     final response = await http.put(
       _uri('/profile'),
@@ -242,9 +245,21 @@ class ApiService {
         'email': email.trim(),
         'phone': phone.trim(),
         'address': address.trim(),
-        if (city != null) 'city': city.trim(),
-        if (postalCode != null) 'postal_code': postalCode.trim(),
-        if (specialization != null) 'specialization': specialization.trim(),
+
+        if (city != null)
+          'city': city.trim(),
+
+        if (postalCode != null)
+          'postal_code': postalCode.trim(),
+
+        if (specialization != null)
+          'specialization': specialization.trim(),
+
+        if (description != null)
+          'description': description.trim(),
+
+        if (yearsExperience != null)
+          'years_experience': yearsExperience,
       }),
     );
 
@@ -527,5 +542,30 @@ class ApiService {
     final data = _decode(response);
 
     _throwIfNeeded(response, data);
+  }
+
+  static Future<Technician> getTechnicianProfile() async {
+    final response = await http.get(
+      _uri('/technicians'),
+      headers: await _headers(auth: true),
+    );
+
+    final data = _decode(response);
+
+    _throwIfNeeded(response, data);
+
+    final technicians =
+        (data['technicians'] as List?) ?? [];
+
+    if (technicians.isEmpty) {
+      throw ApiException(
+        'Data teknisi tidak ditemukan.',
+      );
+    }
+
+    return Technician.fromJson(
+      technicians.first
+      as Map<String, dynamic>,
+    );
   }
 }

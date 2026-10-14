@@ -107,12 +107,29 @@ class BookingController extends Controller
 
         $booking->load(['service', 'technician', 'customer', 'invoice.payments', 'rating']);
 
-        Notification::create([
+        // Notifikasi untuk customer
+Notification::create([
     'user_id' => $user->id,
     'title' => 'Booking Berhasil',
     'message' => 'Booking layanan berhasil dibuat.',
     'type' => 'booking',
+    'is_read' => false,
 ]);
+
+// Notifikasi untuk teknisi jika teknisi dipilih saat booking
+if ($booking->technician_id) {
+    $technician = Technician::find($booking->technician_id);
+
+    if ($technician && $technician->user_id) {
+        Notification::create([
+            'user_id' => $technician->user_id,
+            'title' => 'Booking Servis Baru',
+            'message' => 'Ada booking servis baru yang ditugaskan kepada Anda. Silakan periksa jadwal dan detail booking.',
+            'type' => 'booking',
+            'is_read' => false,
+        ]);
+    }
+}
 
 
         return response()->json([
